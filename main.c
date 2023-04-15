@@ -15,6 +15,8 @@
 #include "driver\io_config.h"
 #include "driver\osc.h"
 #include "driver\uart.h"
+#include "driver\dac.h"
+#include "driver\sin.h"
 
 SBIT (TP0, SFR_P0, 7);
 SBIT (TP1, SFR_P0, 6);
@@ -37,16 +39,20 @@ unsigned char KEY[4]={	0x0e,	0x0d,	0x0b,	0x07};
 /* 用户代码（定时器0中断服务,100us周期） */
 void t0_isr_callback(void)
 {
-
+	static unsigned int cnt=0;		//cnt，counter 的意思，计数器，注意是 static 的! ... ...
+	TP0=!TP0; 						// TP0 翻转，用来指示中断触发频率或周期
+	TP1=1; 							// TP1 置高，TP1 的高电平持续时间代表中断服务程序执行时间
+	cnt++; 							// 计数器加1
+	if (cnt>=512) cnt=0; 			// 计数器溢出，重新计数
+	generate_sine_wave(cnt,100,1);  // 生成正弦波
+	TP1=0; 							// TP1 置低，TP1 的高电平持续时间代表中断服务程序执行时间
 }
 
 
 /* 用户代码（主循环）*/
 int main(void)
 {
-
 	Osc_Init_Parameter_t Osc_Init_Parameter;	// 振荡器初始化参数
-
 
 	// 中断全局关闭
 	EA=0;	
@@ -65,21 +71,14 @@ int main(void)
 	io_config();
 	io_init();
 	uart0_init();
+	dac0_init();
 
 
 	//设置串口0所占用的IO口：P0.0和P0.1
 	XBR0=Reg_Field_Set(XBR0,BIT2);
 	//使能交叉开关
 	XBR2=Reg_Field_Set(XBR2,BIT6);
-	//使能内部电压基准
-	REF0CN=Reg_Field_Set(REF0CN,BIT1);
-	REF0CN=Reg_Field_Set(REF0CN,BIT0);
-	//使能DAC0，DAC0H: 8bit; DAC0L: 4bit
-	DAC0CN=Reg_Field_Set(DAC0CN,BIT7);
-	DAC0CN=Reg_Field_Set(DAC0CN,BIT2);
 
-	DAC0L=0;
-	DAC0H=0;
 
 	TL0=(256-200);	// when 24MHz & SYSCLK/12, 10kHz timeout 
 	TH0=(256-200);	// reload
