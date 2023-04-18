@@ -106,7 +106,7 @@ void Loop_Delay(unsigned int loop)
 
 	for(i=0; i<loop; i++)
 	{
-		for(j=0;j<1000;j++)
+		for(j=0;j<100;j++)
 		{
 
 		}

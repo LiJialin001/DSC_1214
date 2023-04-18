@@ -45,6 +45,7 @@ void t0_isr_callback(void)
 	cnt++; 							// 计数器加1
 	if (cnt>=512) cnt=0; 			// 计数器溢出，重新计数
 	generate_sine_wave(cnt,100,1);  // 生成正弦波
+	Loop_Delay(1);
 	TP1=0; 							// TP1 置低，TP1 的高电平持续时间代表中断服务程序执行时间
 }
 
@@ -66,7 +67,11 @@ int main(void)
 	Osc_Init_Parameter.External_Mode = CRYSTAL;
 	Osc_Init_Parameter.Frequency = 24000000;	
 	Osc_Init(&Osc_Init_Parameter);
-	Loop_Delay(100);
+	Delay1ms();
+	Delay1ms();
+	Delay1ms();
+	Delay1ms();
+	Delay1ms();
 
 	io_config();
 	io_init();
@@ -80,8 +85,8 @@ int main(void)
 	XBR2=Reg_Field_Set(XBR2,BIT6);
 
 
-	TL0=(256-200);	// when 24MHz & SYSCLK/12, 10kHz timeout 
-	TH0=(256-200);	// reload
+	TL0=(256-20);	// when 24MHz & SYSCLK/12, 10kHz timeout 
+	TH0=(256-20);	// reload
 
 
 	EA=1;

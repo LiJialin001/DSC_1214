@@ -39,8 +39,12 @@ void set_dac_voltage(unsigned int sinIndex)
     unsigned int dacValue;
     
     dacValue = sinTable[sinIndex];
+
+ //   DAC0L = (dacValue % 16) * 16;
+//    DAC0H = dacValue / 16;
     
     DAC0L = dacValue & 0x0F;
     DAC0H = (dacValue >> 4) & 0xFF;
+  //  DAC0H += 32;
 }
 
